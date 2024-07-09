@@ -6,7 +6,7 @@ async function runGame() {
     const playerB = new Player("Player B", 100, 10, 5);
 
     const game = new Game(playerA, playerB);
-    await game.play();
+    await game.start();
 }
 
 runGame();
