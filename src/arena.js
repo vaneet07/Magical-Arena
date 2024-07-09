@@ -1,6 +1,6 @@
 const Combat = require('./combat');
 
-class Game {
+class Arena {
     constructor(player1, player2) {
         this.players = [player1, player2].sort((a, b) => a.health - b.health); // SORTING PLAYERS ACCORDING TO THEIR HEALTH
         this.round = 1;
