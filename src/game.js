@@ -1,4 +1,3 @@
-// game.js
 const Player = require('./player');
 const Arena = require('./arena');
 
