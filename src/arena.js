@@ -14,7 +14,7 @@ class Arena {
 
             if (!defender.isAlive()) break;
 
-            const result = Combat.resolveCombat(attacker, defender);
+            const result = Combat.fight(attacker, defender);
             results.push(result);
         }
         this.round++;
