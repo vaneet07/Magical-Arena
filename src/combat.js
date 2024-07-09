@@ -31,4 +31,4 @@ class Arena {
     }
 }
 
-module.exports = Arena;
+module.exports = Combat;
