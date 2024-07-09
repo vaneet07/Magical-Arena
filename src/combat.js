@@ -5,24 +5,28 @@ class Arena {
         const attackRoll = Dice.roll();
         const defendRoll = Dice.roll();
 
-        const result = this.calculateDamage(attacker, defender, attackRoll, defendRoll);
-        defender.takeDamage(result.netDamage);
+        const damage = this.calculateDamage(attacker, defender, attackRoll, defendRoll);
+        defender.takeDamage(damage.netDamage);
 
-        return result;
+        return {
+            attacker: attacker.name,
+            defender: defender.name,
+            ...damage
+        };
     }
 
     static calculateDamage(attacker, defender, attackRoll, defendRoll) { // CALCULATES DAMAGE DONE BY ATTACKER TO DEFENDER
-        const damage = attacker.attack * attackRoll;
+        const rawDamage = attacker.attack * attackRoll;
         const defense = defender.strength * defendRoll;
-
-        const netDamage = Math.max(0, damage - defense);
+        
+        const netDamage = Math.max(0, rawDamage - defense);
 
         return {
-            attackerRoll: attackRoll,
-            defenderRoll: defendRoll,
-            damage: damage,
-            defense: defense,
-            netDamage: netDamage
+            attackRoll,
+            defendRoll,
+            rawDamage,
+            defense,
+            netDamage
         };
     }
 }
