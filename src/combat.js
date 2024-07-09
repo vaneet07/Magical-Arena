@@ -1,6 +1,6 @@
 const Dice = require('./dice'); // USES DICE ENTITY
 
-class Arena {
+class Combat {
     static fight(attacker, defender) { // FIGHT ROUND INITIATED BETWEEN BOTH PLAYERS
         const attackRoll = Dice.roll();
         const defendRoll = Dice.roll();
