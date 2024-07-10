@@ -1,34 +1,48 @@
+const db = require('./db');
 const Match = require('./match');
 
 class Arena {
-    constructor(player1, player2) {
-        this.players = [player1, player2].sort((a, b) => a.health - b.health); // SORTING PLAYERS ACCORDING TO THEIR HEALTH
-        this.round = 1;
+    constructor() {
+        this.currentMatch = null;
+        this.previousMatches = [];
     }
 
-    playRound() { // FUNCTION TO PLAY GAME ROUND WISE 
-        const results = [];
-        for (let i = 0; i < 2; i++) {
-            const attacker = this.players[i];
-            const defender = this.players[1 - i];
+    startNewMatch(player1, player2) { // START A MATCH
+        this.currentMatch = new Match(player1, player2);
+        db.saveMatch(this.currentMatch);
+        return this.currentMatch;
+    }
 
-            if (!defender.isAlive()) break;
-
-            const result = Match.fight(attacker, defender);
-            results.push(result);
+    playRound() { // PLAY A ROUND IN CURRENT MATCH
+        // CHECK IF THERE IS AN ACTIVE MATCH
+        if (!this.currentMatch || this.currentMatch.isFinished()) {
+            throw new Error("No active match in the arena");
         }
-        this.round++;
-        return results;
+        
+        const roundResult = this.currentMatch.playRound();
+        db.saveMatch(this.currentMatch);
+        
+        // IF MATCH FINISHED, ADD IT TO PREVIOUS MATCHES AND RESET CURRENT MATCH
+        if (this.currentMatch.isFinished()){
+            this.previousMatches.push(this.currentMatch.id);
+            this.currentMatch = null;
+        }
+
+        return roundResult;
     }
 
-    isGameOver() { // CHECK IF THE GAME HAS ENDED MEANS ONE PLAYER IS DEAD
-        return !this.players[0].isAlive() || !this.players[1].isAlive();
+    getCurrentMatch() { // GET CURRENT MATCH
+        return this.currentMatch;
     }
 
-    getWinner() { // RETRIEVE WINNER PLAYER ATTRIBUTES
-        if (!this.isGameOver()) return null;
-        return this.players[0].isAlive() ? this.players[0] : this.players[1];
+    getPreviousMatches(){ // GET ALL PREV MATCHES
+        let matches = [];
+        for (let i in this.previousMatches){
+            matches.push(db.getMatch(this.previousMatches[i]));
+        }
+        return matches;
     }
+
 }
 
 module.exports = Arena;
