@@ -14,33 +14,62 @@ class Match {
         this.turn = 0;
     }
 
-    static fight(attacker, defender) { // FIGHT ROUND INITIATED BETWEEN BOTH PLAYERS
-        const attackRoll = Dice.roll();
-        const defendRoll = Dice.roll();
+    playRound(){
+        let player1 = db.getPlayer(this.player1Id);
+        let player2 = db.getPlayer(this.player2Id);
+        this.turn = (this.turn === 0) ? (player1.health < player2.health ? 1 : 2) : this.turn; // CHECK IF GAME HAS JUST STARTED, THEN DETERMINE WHO WILL ATTACK FIRST BASED ON LOWER HEALTH
 
-        const damage = this.calculateDamage(attacker, defender, attackRoll, defendRoll);
-        defender.takeDamage(damage.netDamage);
-
-        return {
-            attacker: attacker.name,
-            defender: defender.name,
-            ...damage
+        let roundResult = { // STORE AND ORGANIZE INFORMATION ABOUT THE CURRENT ROUND OF THE GAME
+            roundNumber: this.rounds.length + 1,
+            actions: [] // STORE DETAILS OF ACTIONS IN THE CURRENT ROUND
         };
+
+        for (let i = 0; i < 2; i++) {
+            // ASSIGN ATTACKER AND DEFENDER
+            let attacker = (this.turn === 1) ? player1 : player2;
+            let defender = (this.turn === 1) ? player2 : player1;
+
+            const rollAttack = Dice.roll(); // ATTCKER ROLLS THE DICE
+            const rollDefend = Dice.roll(); // DEFENDER ROLLS THE DICE
+
+            const attackPower = attacker.attack*rollAttack; // ATTACK POWER
+            const defensePower = defender.strength*rollDefend; // DEFENSE POWER
+
+            const damage = Math.max(0, attackPower-defensePower); // CALCULATED DAMAGE 
+
+            defender.takeDamage(damage); // DEFENDER TOOK THE DAMAGE, HEALTH REDUCED
+            
+
+            player1 = this.turn===1? attacker : defender;
+            player2 = this.turn===1? defender : attacker; 
+
+            roundResult.actions.push({ // PUSH CURRENT ROUND DETAILS IN ACTION ARRAY
+                attacker:attacker.id,
+                defender:defender.id,
+                attackRoll:rollAttack,
+                defendRoll: rollDefend,
+                rawDamage: attackPower,
+                defense: defensePower,
+                netDamage: damage});
+            
+            this.turn = (this.turn === 1 ? 2:1); // SWITCH TURNS
+            if (!defender.isAlive()) break;
+        }
+
+        this.rounds.push(roundResult); // STORE ROUND WISE RESULTS IN ARRAY
+
+        if (!player1.isAlive() || !player2.isAlive()) {
+            this.endTime = new Date();
+            this.winnerId = player1.isAlive() ? player1.id : player2.id;
+        }
+        db.savePlayer(player1);
+        db.savePlayer(player2);
+
+        return roundResult;
     }
 
-    static calculateDamage(attacker, defender, attackRoll, defendRoll) { // CALCULATES DAMAGE DONE BY ATTACKER TO DEFENDER
-        const rawDamage = attacker.attack * attackRoll;
-        const defense = defender.strength * defendRoll;
-        
-        const netDamage = Math.max(0, rawDamage - defense);
-
-        return {
-            attackRoll,
-            defendRoll,
-            rawDamage,
-            defense,
-            netDamage
-        };
+    isFinished() { // CHECK IF MATCH IS FINISHED
+        return this.endTime !== null;
     }
 }
 
