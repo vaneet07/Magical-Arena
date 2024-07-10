@@ -1,6 +1,19 @@
 const Dice = require('./dice'); // USES DICE ENTITY
+const db = require('./db');
 
-class Combat {
+class Match {
+    static currentMatchId = 1; // CURRENT MATCH ID
+    constructor(player1 ,player2) {
+        this.id = Match.currentMatchId++;
+        this.player1Id = player1.id;
+        this.player2Id = player2.id;
+        this.rounds = [];
+        this.winnerId = null;
+        this.startTime = new Date(); // MATCH START TIMESTAM
+        this.endTime = null;
+        this.turn = 0;
+    }
+
     static fight(attacker, defender) { // FIGHT ROUND INITIATED BETWEEN BOTH PLAYERS
         const attackRoll = Dice.roll();
         const defendRoll = Dice.roll();
@@ -31,4 +44,4 @@ class Combat {
     }
 }
 
-module.exports = Combat;
+module.exports = Match;

@@ -1,4 +1,4 @@
-const Combat = require('./combat');
+const Match = require('./match');
 
 class Arena {
     constructor(player1, player2) {
@@ -14,7 +14,7 @@ class Arena {
 
             if (!defender.isAlive()) break;
 
-            const result = Combat.fight(attacker, defender);
+            const result = Match.fight(attacker, defender);
             results.push(result);
         }
         this.round++;
