@@ -1,8 +1,10 @@
 const { expect } = require('chai');
-import Player from '../src/player'
-import Match from '../src/match'
-import Arena from '../src/arena'
-import db from '../src/db'
+
+const db = require('../src/db');
+const Player = require('../src/player');
+const Arena = require('../src/arena');
+const Match = require('../src/match');
+
 
 describe('Player Class', function() {
     let player;
